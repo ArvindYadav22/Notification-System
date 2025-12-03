@@ -6,6 +6,7 @@ app.listen(PORT, () => {
   console.log(` Notification System API running on port ${PORT}`);
   console.log(` API Base URL: http://localhost:${PORT}/api`);
   console.log('\n Available Endpoints:');
+  console.log('  GET    /');
   console.log('  POST   /api/organizations');
   console.log('  GET    /api/organizations/:orgId');
   console.log('  POST   /api/organizations/:orgId/users');

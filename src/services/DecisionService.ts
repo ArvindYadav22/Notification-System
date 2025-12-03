@@ -7,6 +7,7 @@ import { IGroupRepository } from '../repositories/IGroupRepository';
 import { IPreferenceRepository } from '../repositories/IPreferenceRepository';
 import { IDecisionService } from './IDecisionService';
 import { TYPES } from '../config/types';
+import { AppError } from '../utils/AppError';
 
 @injectable()
 export class DecisionService implements IDecisionService {
@@ -21,29 +22,29 @@ export class DecisionService implements IDecisionService {
         // Step 1: Validate user exists
         const user = this.userRepository.findById(dto.userId);
         if (!user) {
-            throw new Error(`User with id ${dto.userId} not found`);
+            throw new AppError(`User with id ${dto.userId} not found`, 404);
         }
 
         // Step 2: Validate topic exists
         const topic = this.topicRepository.findById(dto.topicId);
         if (!topic) {
-            throw new Error(`Topic with id ${dto.topicId} not found`);
+            throw new AppError(`Topic with id ${dto.topicId} not found`, 404);
         }
 
         // Step 3: Validate channel is valid
         if (!VALID_CHANNELS.includes(dto.channel)) {
-            throw new Error(`Invalid channel: ${dto.channel}`);
+            throw new AppError(`Invalid channel: ${dto.channel}`, 400);
         }
 
         // Step 4: Get the group for this topic
         const group = this.groupRepository.findById(topic.groupId);
         if (!group) {
-            throw new Error(`Group with id ${topic.groupId} not found`);
+            throw new AppError(`Group with id ${topic.groupId} not found`, 404);
         }
 
         // Step 5: Check if user belongs to same organization
         if (user.organizationId !== group.organizationId) {
-            throw new Error('User does not belong to the same organization as the topic');
+            throw new AppError('User does not belong to the same organization as the topic', 403);
         }
 
         // Step 6: Check group-level preference

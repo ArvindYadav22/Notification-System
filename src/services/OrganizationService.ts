@@ -5,6 +5,7 @@ import { CreateOrganizationDto, OrganizationResponseDto } from '../models/dtos';
 import { IOrganizationRepository } from '../repositories/IOrganizationRepository';
 import { IOrganizationService } from './IOrganizationService';
 import { TYPES } from '../config/types';
+import { AppError } from '../utils/AppError';
 
 @injectable()
 export class OrganizationService implements IOrganizationService {
@@ -26,7 +27,7 @@ export class OrganizationService implements IOrganizationService {
         const organization = this.organizationRepository.findById(id);
 
         if (!organization) {
-            throw new Error(`Organization with id ${id} not found`);
+            throw new AppError(`Organization with id ${id} not found`, 404);
         }
 
         return {

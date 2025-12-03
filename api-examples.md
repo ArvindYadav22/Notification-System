@@ -128,9 +128,45 @@ curl -X POST http://localhost:3000/api/check-permission \
 ```
 
 ### Check 5: Invalid Channel
-**Expected: ERROR**
+**Expected: 400 Bad Request**
+```json
+{
+  "status": "error",
+  "message": "Invalid channel: smoke_signal"
+}
+```
 ```bash
 curl -X POST http://localhost:3000/api/check-permission \
   -H "Content-Type: application/json" \
   -d '{"userId": "USER_ID", "topicId": "TOPIC_LOGIN_ID", "channel": "smoke_signal"}'
+```
+
+### Check 6: Invalid User
+**Expected: 404 Not Found**
+```json
+{
+  "status": "error",
+  "message": "User with id INVALID_ID not found"
+}
+```
+```bash
+curl -X POST http://localhost:3000/api/check-permission \
+  -H "Content-Type: application/json" \
+  -d '{"userId": "INVALID_ID", "topicId": "TOPIC_LOGIN_ID", "channel": "sms"}'
+```
+
+### Check 7: Cross-Organization Access
+**Expected: 403 Forbidden**
+*Reason: User belongs to a different organization than the topic.*
+```json
+{
+  "status": "error",
+  "message": "User does not belong to the same organization as the topic"
+}
+```
+```bash
+# Assuming USER_ID_ORG2 is a user from a different organization
+curl -X POST http://localhost:3000/api/check-permission \
+  -H "Content-Type: application/json" \
+  -d '{"userId": "USER_ID_ORG2", "topicId": "TOPIC_LOGIN_ID", "channel": "sms"}'
 ```

@@ -17,6 +17,7 @@ import { IUserRepository } from '../repositories/IUserRepository';
 import { IOrganizationRepository } from '../repositories/IOrganizationRepository';
 import { INotificationService } from './INotificationService';
 import { TYPES } from '../config/types';
+import { AppError } from '../utils/AppError';
 
 @injectable()
 export class NotificationService implements INotificationService {
@@ -31,22 +32,22 @@ export class NotificationService implements INotificationService {
         // Validate admin user
         const user = this.userRepository.findById(dto.adminUserId);
         if (!user) {
-            throw new Error(`User with id ${dto.adminUserId} not found`);
+            throw new AppError(`User with id ${dto.adminUserId} not found`, 404);
         }
 
         if (user.role !== UserRole.ADMIN) {
-            throw new Error('Only admin users can create groups');
+            throw new AppError('Only admin users can create groups', 403);
         }
 
         // Validate organization exists
         const organization = this.organizationRepository.findById(dto.organizationId);
         if (!organization) {
-            throw new Error(`Organization with id ${dto.organizationId} not found`);
+            throw new AppError(`Organization with id ${dto.organizationId} not found`, 404);
         }
 
         // Validate user belongs to organization
         if (user.organizationId !== dto.organizationId) {
-            throw new Error('Admin user does not belong to this organization');
+            throw new AppError('Admin user does not belong to this organization', 403);
         }
 
         const group = new Group(uuidv4(), dto.organizationId, dto.name);
@@ -67,18 +68,18 @@ export class NotificationService implements INotificationService {
         }
 
         if (user.role !== UserRole.ADMIN) {
-            throw new Error('Only admin users can create topics');
+            throw new AppError('Only admin users can create topics', 403);
         }
 
         // Validate group exists
         const group = this.groupRepository.findById(dto.groupId);
         if (!group) {
-            throw new Error(`Group with id ${dto.groupId} not found`);
+            throw new AppError(`Group with id ${dto.groupId} not found`, 404);
         }
 
         // Validate user belongs to same organization as group
         if (user.organizationId !== group.organizationId) {
-            throw new Error('Admin user does not belong to the same organization as the group');
+            throw new AppError('Admin user does not belong to the same organization as the group', 403);
         }
 
         const topic = new Topic(uuidv4(), dto.groupId, dto.name);
@@ -95,7 +96,7 @@ export class NotificationService implements INotificationService {
         // Validate organization exists
         const organization = this.organizationRepository.findById(organizationId);
         if (!organization) {
-            throw new Error(`Organization with id ${organizationId} not found`);
+            throw new AppError(`Organization with id ${organizationId} not found`, 404);
         }
 
         const groups = this.groupRepository.findByOrganizationId(organizationId);

@@ -16,6 +16,7 @@ import { IGroupRepository } from '../repositories/IGroupRepository';
 import { ITopicRepository } from '../repositories/ITopicRepository';
 import { IPreferenceService } from './IPreferenceService';
 import { TYPES } from '../config/types';
+import { AppError } from '../utils/AppError';
 
 @injectable()
 export class PreferenceService implements IPreferenceService {
@@ -30,18 +31,18 @@ export class PreferenceService implements IPreferenceService {
         // Validate user exists
         const user = this.userRepository.findById(userId);
         if (!user) {
-            throw new Error(`User with id ${userId} not found`);
+            throw new AppError(`User with id ${userId} not found`, 404);
         }
 
         // Validate group exists
         const group = this.groupRepository.findById(dto.groupId);
         if (!group) {
-            throw new Error(`Group with id ${dto.groupId} not found`);
+            throw new AppError(`Group with id ${dto.groupId} not found`, 404);
         }
 
         // Validate user belongs to same organization as group
         if (user.organizationId !== group.organizationId) {
-            throw new Error('User does not belong to the same organization as the group');
+            throw new AppError('User does not belong to the same organization as the group', 403);
         }
 
         const preference = new UserGroupPreference(userId, dto.groupId, dto.enabled);
@@ -52,28 +53,28 @@ export class PreferenceService implements IPreferenceService {
         // Validate user exists
         const user = this.userRepository.findById(userId);
         if (!user) {
-            throw new Error(`User with id ${userId} not found`);
+            throw new AppError(`User with id ${userId} not found`, 404);
         }
 
         // Validate topic exists
         const topic = this.topicRepository.findById(dto.topicId);
         if (!topic) {
-            throw new Error(`Topic with id ${dto.topicId} not found`);
+            throw new AppError(`Topic with id ${dto.topicId} not found`, 404);
         }
 
         // Validate channel is valid
         if (!VALID_CHANNELS.includes(dto.channel)) {
-            throw new Error(`Invalid channel: ${dto.channel}`);
+            throw new AppError(`Invalid channel: ${dto.channel}`, 400);
         }
 
         // Get group for topic and validate user belongs to same organization
         const group = this.groupRepository.findById(topic.groupId);
         if (!group) {
-            throw new Error(`Group with id ${topic.groupId} not found`);
+            throw new AppError(`Group with id ${topic.groupId} not found`, 404);
         }
 
         if (user.organizationId !== group.organizationId) {
-            throw new Error('User does not belong to the same organization as the topic');
+            throw new AppError('User does not belong to the same organization as the topic', 403);
         }
 
         const preference = new UserTopicChannelPreference(userId, dto.topicId, dto.channel, dto.enabled);

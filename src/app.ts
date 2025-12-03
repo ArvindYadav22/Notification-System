@@ -13,6 +13,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Routes
+app.get('/', (req, res) => {
+    res.json({
+        message: 'Notification System API is running',
+        documentation: '/api-docs (Check README.md)'
+    });
+});
+
 app.use('/api', router);
 
 // Error handling middleware (must be last)

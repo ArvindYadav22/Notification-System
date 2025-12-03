@@ -6,6 +6,7 @@ import { IUserRepository } from '../repositories/IUserRepository';
 import { IOrganizationRepository } from '../repositories/IOrganizationRepository';
 import { IUserService } from './IUserService';
 import { TYPES } from '../config/types';
+import { AppError } from '../utils/AppError';
 
 @injectable()
 export class UserService implements IUserService {
@@ -18,7 +19,7 @@ export class UserService implements IUserService {
         // Validate organization exists
         const organization = this.organizationRepository.findById(organizationId);
         if (!organization) {
-            throw new Error(`Organization with id ${organizationId} not found`);
+            throw new AppError(`Organization with id ${organizationId} not found`, 404);
         }
 
         const user = new User(uuidv4(), organizationId, dto.email, dto.role);
@@ -36,7 +37,7 @@ export class UserService implements IUserService {
         const user = this.userRepository.findById(id);
 
         if (!user) {
-            throw new Error(`User with id ${id} not found`);
+            throw new AppError(`User with id ${id} not found`, 404);
         }
 
         return {
